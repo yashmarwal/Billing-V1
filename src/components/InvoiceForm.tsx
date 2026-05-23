@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ItemRowEditor } from "./ItemRowEditor";
 import { type InvoiceData } from "@/lib/calculations";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, ImageUp, X } from "lucide-react";
 
 interface Props {
   data: InvoiceData;
@@ -19,6 +19,7 @@ export function InvoiceForm({ data, onChange }: Props) {
   const [step, setStep] = useState(0);
   const set = <K extends keyof InvoiceData>(k: K, v: InvoiceData[K]) => onChange({ ...data, [k]: v });
   const b = data.business, buyer = data.buyer, inv = data.invoice;
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogo = (file: File) => {
     const r = new FileReader();
@@ -50,10 +51,42 @@ export function InvoiceForm({ data, onChange }: Props) {
             <AccordionContent className="space-y-3">
               <Field label="Business Name"><Input value={b.name} onChange={(e) => set("business", { ...b, name: e.target.value })} /></Field>
               <Field label="Tagline / Line of Business"><Input value={b.tagline} onChange={(e) => set("business", { ...b, tagline: e.target.value })} /></Field>
-              <Field label="Logo (upload or initials text)">
-                <div className="flex gap-2">
-                  <Input placeholder="e.g. AB" value={b.logo.startsWith("data:") ? "" : b.logo} onChange={(e) => set("business", { ...b, logo: e.target.value })} />
-                  <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && handleLogo(e.target.files[0])} />
+              <Field label="Logo">
+                <div className="space-y-2">
+                  <Input placeholder="Initials (e.g. AB)" value={b.logo.startsWith("data:") ? "" : b.logo} onChange={(e) => set("business", { ...b, logo: e.target.value })} />
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && handleLogo(e.target.files[0])}
+                  />
+                  {b.logo.startsWith("data:") ? (
+                    <div className="flex items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2">
+                      <img src={b.logo} alt="logo" className="h-10 w-10 rounded object-contain border bg-white" />
+                      <span className="flex-1 text-xs text-muted-foreground truncate">Logo image selected</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 shrink-0"
+                        onClick={() => set("business", { ...b, logo: "" })}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => logoInputRef.current?.click()}
+                    >
+                      <ImageUp className="h-4 w-4 mr-2" />
+                      Choose Logo Image
+                    </Button>
+                  )}
                 </div>
               </Field>
               <Field label="Address"><Textarea rows={2} value={b.address} onChange={(e) => set("business", { ...b, address: e.target.value })} /></Field>
