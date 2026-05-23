@@ -17,7 +17,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-
 const InvoiceCategoryRoute = InvoiceCategoryRouteImport.update({
   id: '/invoice/$category',
   path: '/invoice/$category',
@@ -73,7 +72,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InvoiceCategoryRoute: InvoiceCategoryRoute,
 }
-
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()

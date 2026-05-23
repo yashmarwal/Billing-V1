@@ -104,7 +104,7 @@ export function emptyTemplateInvoice(config: TemplateConfig): TemplateInvoiceDat
 
   return {
     category: config.category,
-    sender: Object.fromEntries(config.senderFields.map((f) => [f.key, ""])),
+    sender: { logo: "", ...Object.fromEntries(config.senderFields.map((f) => [f.key, ""])) },
     receiver: Object.fromEntries(config.receiverFields.map((f) => [f.key, ""])),
     items: [blankItem],
     extraFields,

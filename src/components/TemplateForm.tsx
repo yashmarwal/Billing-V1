@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Copy,
-  Building2, User, List, FileText, Receipt,
+  Building2, User, List, FileText, Receipt, Upload, X,
 } from "lucide-react";
 import type { TemplateConfig, TemplateInvoiceData, TemplateItem, FieldDef } from "@/lib/types";
 import { computeLineAmount } from "@/lib/calculations";
@@ -134,13 +134,19 @@ export function TemplateForm({ config, data, onChange }: Props) {
         )}
       >
         {step === 0 && (
-          <FieldsPanel
-            title={`${config.senderLabel} Information`}
-            fields={config.senderFields}
-            values={data.sender}
-            onChange={setSender}
-            context={data.sender}
-          />
+          <div className="space-y-3">
+            <LogoUploadField
+              value={data.sender.logo ?? ""}
+              onChange={(v) => setSender("logo", v)}
+            />
+            <FieldsPanel
+              title={`${config.senderLabel} Information`}
+              fields={config.senderFields}
+              values={data.sender}
+              onChange={setSender}
+              context={data.sender}
+            />
+          </div>
         )}
         {step === 1 && (
           <FieldsPanel
@@ -298,6 +304,45 @@ function FieldInput({ field, value, onChange }: { field: FieldDef; value: string
   );
 }
 
+// ── LogoUploadField ──────────────────────────────────────────────────────────
+
+function LogoUploadField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="rounded-lg border bg-card p-3 space-y-2">
+      <p className="text-xs font-medium text-muted-foreground">Business Logo <span className="text-[10px]">(optional)</span></p>
+      {value ? (
+        <div className="flex items-center gap-3">
+          <img src={value} alt="logo" className="h-12 max-w-[120px] object-contain rounded border bg-muted/20" />
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 transition-colors"
+          >
+            <X className="h-3.5 w-3.5" /> Remove
+          </button>
+        </div>
+      ) : (
+        <label className="inline-flex items-center gap-1.5 cursor-pointer rounded-md border px-3 py-1.5 text-xs font-medium bg-background hover:bg-muted transition-colors">
+          <Upload className="h-3.5 w-3.5" />
+          Upload Logo (PNG / JPG / SVG)
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = () => onChange(reader.result as string);
+              reader.readAsDataURL(file);
+            }}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
 // ── ItemsPanel ───────────────────────────────────────────────────────────────
 
 interface ItemsPanelProps {
@@ -408,6 +453,11 @@ function SummaryPanel({ config, data, subtotal, taxTotal, deductions, grand, onT
 
       {/* Tax toggles */}
       <div className="space-y-2">
+        {config.taxes.length === 0 && (
+          <div className="text-xs text-muted-foreground italic border rounded-lg p-3 bg-muted/30">
+            Tax rates are set in the <strong>Invoice Details</strong> step (SGST / CGST / IGST %).
+          </div>
+        )}
         {config.taxes.map((t) => (
           <div key={t.key} className="flex items-center justify-between rounded-lg border bg-card p-3">
             <div>

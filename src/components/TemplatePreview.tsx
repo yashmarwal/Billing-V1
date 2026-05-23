@@ -32,6 +32,7 @@ export function TemplatePreview({ config, data }: Props) {
   const allCols = config.lineItemColumns;
 
   return (
+    <div className="overflow-x-auto">
     <div
       className="invoice-sheet bg-white text-black mx-auto shadow-sm border border-neutral-200 print:shadow-none print:border-0"
       style={{
@@ -65,6 +66,14 @@ export function TemplatePreview({ config, data }: Props) {
       {/* Header: sender info + extra fields side by side */}
       <div className="flex gap-4 border-b-2 border-black pb-3 mb-3">
         <div className="flex-1">
+          {data.sender.logo && (
+            <img
+              src={data.sender.logo}
+              alt="logo"
+              className="mb-1.5 object-contain"
+              style={{ maxHeight: "56px", maxWidth: "120px" }}
+            />
+          )}
           <div className="text-xl font-bold">{data.sender.name || `[${config.senderLabel} Name]`}</div>
           {data.sender.tagline && <div className="text-[9px] italic">{data.sender.tagline}</div>}
           {data.sender.address && <div className="text-[9px] whitespace-pre-line mt-0.5">{data.sender.address}</div>}
@@ -221,7 +230,7 @@ export function TemplatePreview({ config, data }: Props) {
             <div className="font-semibold mb-1">Terms & Conditions:</div>
             <div className="whitespace-pre-line text-neutral-700">{config.notes}</div>
           </div>
-          <div className="p-2 text-right flex flex-col justify-between min-h-[80px]">
+          <div className="p-2 text-right flex flex-col justify-between min-h-20">
             <div className="font-semibold">
               For {data.sender.name || config.senderLabel}
             </div>
@@ -233,6 +242,7 @@ export function TemplatePreview({ config, data }: Props) {
           This is a computer-generated document.
         </div>
       )}
+    </div>
     </div>
   );
 }

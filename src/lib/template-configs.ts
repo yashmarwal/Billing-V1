@@ -432,6 +432,65 @@ const salon: TemplateConfig = {
   showSignatureBlock: false,
 };
 
+const manufacturer: TemplateConfig = {
+  category: "manufacturer",
+  displayName: "Manufacturer / Wholesaler",
+  icon: "Factory",
+  description: "Triplicate tax invoices for manufacturers, wholesalers & textile traders",
+  documentTitle: "Tax Invoice",
+  senderLabel: "Manufacturer / Business",
+  receiverLabel: "Buyer",
+  color: "text-stone-700",
+  accentBg: "bg-stone-50 border-stone-200",
+  senderFields: [
+    { key: "headerLine", label: "Header Line (e.g. ॐ Shri Ganeshaya Namah)", type: "text", optional: true, span: "full" },
+    { key: "name", label: "Business / Firm Name", type: "text", span: "full" },
+    { key: "specialisation", label: "Specialisation Banner", type: "text", optional: true, span: "full", placeholder: "Mfrs., Exporters & Dealers of Textile Products" },
+    { key: "address", label: "Address", type: "textarea", span: "full" },
+    { key: "mobile", label: "Mobile", type: "tel", span: "half" },
+    { key: "gstin", label: "GSTIN", type: "text", span: "half" },
+    { key: "bankName", label: "Bank Name", type: "text", span: "half" },
+    { key: "accountNo", label: "Account Number", type: "text", span: "half" },
+    { key: "ifsc", label: "IFSC Code", type: "text", span: "half" },
+    { key: "branch", label: "Branch", type: "text", span: "half" },
+  ],
+  receiverFields: [
+    { key: "ms", label: "M/s (Buyer Name / Firm)", type: "text", span: "full" },
+    { key: "mobile", label: "Mobile", type: "tel", span: "half" },
+    { key: "gstin", label: "GSTIN", type: "text", span: "half" },
+    { key: "state", label: "State", type: "text", span: "half" },
+    { key: "stateCode", label: "State Code", type: "text", span: "half" },
+    { key: "grNo", label: "GR No.", type: "text", span: "half", optional: true },
+    { key: "challanNo", label: "Challan No.", type: "text", span: "half", optional: true },
+    { key: "placeOfSupply", label: "Place of Supply", type: "text", span: "half" },
+    { key: "transportBy", label: "Transport By", type: "text", span: "half", optional: true },
+  ],
+  lineItemColumns: [
+    { key: "description", label: "Description of Goods", type: "text", width: 32, placeholder: "e.g. Cotton Fabric" },
+    { key: "hsn", label: "HSN", type: "text", width: 9 },
+    { key: "qty", label: "Qty", type: "number", width: 7 },
+    { key: "unit", label: "Unit", type: "text", width: 7, placeholder: "Mtr" },
+    { key: "rate", label: "Rate (₹)", type: "number", width: 12, prefix: "₹" },
+    { key: "amount", label: "Amount", type: "number", width: 12, computed: true, prefix: "₹" },
+  ],
+  lineItemCompute: "qty*rate",
+  extraFields: [
+    { key: "invoiceNumber", label: "Invoice Number", type: "text", span: "half", placeholder: "INV-001" },
+    { key: "invoiceDate", label: "Invoice Date", type: "date", span: "half" },
+    { key: "sgstRate", label: "SGST Rate (%)", type: "number", span: "half", placeholder: "9" },
+    { key: "cgstRate", label: "CGST Rate (%)", type: "number", span: "half", placeholder: "9" },
+    { key: "igstRate", label: "IGST Rate (%)", type: "number", span: "half", optional: true, placeholder: "0 (inter-state only)" },
+    { key: "jurisdictionCity", label: "Jurisdiction City", type: "text", span: "half", placeholder: "e.g. Surat" },
+    { key: "terms1", label: "Terms Line 1", type: "text", span: "full", optional: true, placeholder: "Goods once sold will not be taken back." },
+    { key: "terms2", label: "Terms Line 2", type: "text", span: "full", optional: true },
+    { key: "terms3", label: "Terms Line 3", type: "text", span: "full", optional: true },
+  ],
+  taxes: [],
+  notes: "Subject to jurisdiction as specified. All disputes subject to local courts.",
+  showAmountInWords: true,
+  showSignatureBlock: true,
+};
+
 export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
   coaching,
   retail,
@@ -441,6 +500,7 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
   construction,
   transport,
   salon,
+  manufacturer,
 };
 
 export const ALL_CATEGORIES = [
@@ -452,6 +512,7 @@ export const ALL_CATEGORIES = [
   construction,
   transport,
   salon,
+  manufacturer,
 ];
 
 export function getTemplateConfig(category: string): TemplateConfig {

@@ -15,6 +15,7 @@ import {
 } from "@/lib/invoice-storage";
 import { TemplateForm } from "./TemplateForm";
 import { TemplatePreview } from "./TemplatePreview";
+import { ManufacturerPreview } from "./ManufacturerPreview";
 
 interface Props {
   config: TemplateConfig;
@@ -142,8 +143,10 @@ export function TemplateInvoicePage({ config, category }: Props) {
         </section>
 
         {/* Preview panel (desktop) */}
-        <section className="invoice-area hidden lg:block">
-          <TemplatePreview config={config} data={data} />
+        <section className="invoice-area hidden lg:block overflow-x-auto">
+          {config.category === "manufacturer"
+            ? <ManufacturerPreview config={config} data={data} />
+            : <TemplatePreview config={config} data={data} />}
         </section>
       </div>
 
@@ -161,15 +164,19 @@ export function TemplateInvoicePage({ config, category }: Props) {
               </Button>
             </div>
           </div>
-          <div className="p-3">
-            <TemplatePreview config={config} data={data} />
+          <div className="p-3 overflow-x-auto">
+            {config.category === "manufacturer"
+              ? <ManufacturerPreview config={config} data={data} />
+              : <TemplatePreview config={config} data={data} />}
           </div>
         </div>
       )}
 
       {/* Print-only */}
       <div className="print-only">
-        <TemplatePreview config={config} data={data} />
+        {config.category === "manufacturer"
+          ? <ManufacturerPreview config={config} data={data} />
+          : <TemplatePreview config={config} data={data} />}
       </div>
     </div>
   );

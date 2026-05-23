@@ -3,7 +3,7 @@ import { ALL_CATEGORIES } from "@/lib/template-configs";
 import type { TemplateConfig } from "@/lib/types";
 import {
   GraduationCap, ShoppingCart, UtensilsCrossed, Stethoscope,
-  Briefcase, HardHat, Truck, Scissors, ArrowRight, FileText,
+  Briefcase, HardHat, Truck, Scissors, Factory, ArrowRight, FileText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   GraduationCap, ShoppingCart, UtensilsCrossed, Stethoscope,
-  Briefcase, HardHat, Truck, Scissors,
+  Briefcase, HardHat, Truck, Scissors, Factory,
 };
 
 const COLOR_MAP: Record<string, { bg: string; icon: string; border: string; ring: string }> = {
@@ -24,6 +24,7 @@ const COLOR_MAP: Record<string, { bg: string; icon: string; border: string; ring
   construction: { bg: "bg-yellow-50",  icon: "text-yellow-700",  border: "border-yellow-200", ring: "ring-yellow-200" },
   transport:    { bg: "bg-cyan-50",    icon: "text-cyan-700",    border: "border-cyan-200",   ring: "ring-cyan-200" },
   salon:        { bg: "bg-pink-50",    icon: "text-pink-600",    border: "border-pink-200",   ring: "ring-pink-200" },
+  manufacturer: { bg: "bg-stone-50",   icon: "text-stone-700",   border: "border-stone-200",  ring: "ring-stone-200" },
 };
 
 function CategoryCard({ config, index }: { config: TemplateConfig; index: number }) {
@@ -81,7 +82,7 @@ export default function HomePage() {
         <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-6 duration-500">
           <div className="inline-flex items-center gap-2 rounded-full border bg-muted/60 px-3 py-1 text-xs text-muted-foreground mb-4 font-medium">
             <FileText className="h-3 w-3" />
-            8 industry templates · 100% offline · No login required
+            9 industry templates · 100% offline · No login required
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
             Generate professional bills<br className="hidden sm:block" /> for any industry
@@ -93,7 +94,7 @@ export default function HomePage() {
         </div>
 
         {/* Category grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {ALL_CATEGORIES.map((config, i) => (
             <CategoryCard key={config.category} config={config} index={i} />
           ))}
