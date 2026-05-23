@@ -20,12 +20,6 @@ import {
 
 export const Route = createFileRoute("/")({
   component: Index,
-  head: () => ({
-    meta: [
-      { title: "Free GST Invoice Generator — Offline, No Login" },
-      { name: "description", content: "Create GST-compliant Indian invoices in seconds. Guided builder, live preview, print or save as PDF. 100% free, works offline, data stays on your device." },
-    ],
-  }),
 });
 
 function Index() {
