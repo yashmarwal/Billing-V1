@@ -44,8 +44,9 @@ function Index() {
   useEffect(() => {
     if (!previewOpen) return;
     const compute = () => {
-      const w = previewWrapRef.current?.offsetWidth ?? window.innerWidth;
-      setPreviewScale(Math.min(1, w / 794));
+      const el = previewWrapRef.current;
+      const contentWidth = el ? el.clientWidth - 24 : window.innerWidth - 24;
+      setPreviewScale(Math.min(1, contentWidth / 794));
     };
     compute();
     window.addEventListener("resize", compute);
@@ -209,15 +210,18 @@ function Index() {
             <Button size="sm" className="ml-2" onClick={onPrint}><Printer className="h-4 w-4 mr-1" />Print</Button>
           </div>
           <div ref={previewWrapRef} className="overflow-auto flex-1 p-3">
-            <div
-              style={{
-                transformOrigin: "top left",
-                transform: `scale(${previewScale})`,
-                width: "210mm",
-                marginBottom: `calc((${previewScale} - 1) * 297mm)`,
-              }}
-            >
-              <InvoicePreview data={data} />
+            {/* Outer div collapses layout width to the visually-scaled width so no dead space appears on the right */}
+            <div style={{ width: `${794 * previewScale}px`, overflow: "hidden" }}>
+              <div
+                style={{
+                  transformOrigin: "top left",
+                  transform: `scale(${previewScale})`,
+                  width: "210mm",
+                  marginBottom: `calc((${previewScale} - 1) * 297mm)`,
+                }}
+              >
+                <InvoicePreview data={data} />
+              </div>
             </div>
           </div>
         </div>
