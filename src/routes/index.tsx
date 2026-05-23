@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
@@ -27,6 +27,8 @@ function Index() {
   const [hydrated, setHydrated] = useState(false);
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewScale, setPreviewScale] = useState(1);
+  const previewWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const saved = loadCurrent();
@@ -38,6 +40,17 @@ function Index() {
   useEffect(() => {
     if (hydrated && data.settings.saveToLocal) saveCurrent(data);
   }, [data, hydrated]);
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    const compute = () => {
+      const w = previewWrapRef.current?.offsetWidth ?? window.innerWidth;
+      setPreviewScale(Math.min(1, w / 794));
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, [previewOpen]);
 
   const setSetting = <K extends keyof InvoiceData["settings"]>(k: K, v: InvoiceData["settings"][K]) =>
     setData((prev) => ({ ...prev, settings: { ...prev.settings, [k]: v } }));
@@ -190,12 +203,23 @@ function Index() {
 
       {/* Mobile preview */}
       {previewOpen && (
-        <div className="lg:hidden no-print fixed inset-0 z-30 bg-background overflow-auto">
-          <div className="sticky top-0 flex justify-end p-3 bg-background border-b">
+        <div className="lg:hidden no-print fixed inset-0 z-30 bg-background flex flex-col">
+          <div className="sticky top-0 flex justify-end p-3 bg-background border-b z-10 shrink-0">
             <Button size="sm" variant="outline" onClick={() => setPreviewOpen(false)}>Close</Button>
             <Button size="sm" className="ml-2" onClick={onPrint}><Printer className="h-4 w-4 mr-1" />Print</Button>
           </div>
-          <div className="p-3"><InvoicePreview data={data} /></div>
+          <div ref={previewWrapRef} className="overflow-auto flex-1 p-3">
+            <div
+              style={{
+                transformOrigin: "top left",
+                transform: `scale(${previewScale})`,
+                width: "210mm",
+                marginBottom: `calc((${previewScale} - 1) * 297mm)`,
+              }}
+            >
+              <InvoicePreview data={data} />
+            </div>
+          </div>
         </div>
       )}
 
