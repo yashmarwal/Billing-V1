@@ -1,243 +1,109 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
-import { InvoiceForm } from "@/components/InvoiceForm";
-import { InvoicePreview } from "@/components/InvoicePreview";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ALL_CATEGORIES } from "@/lib/template-configs";
+import type { TemplateConfig } from "@/lib/types";
 import {
-  emptyInvoice, loadCurrent, saveCurrent, saveDraft, listDrafts,
-  deleteDraft, clearCurrent, resetAll, type Draft,
-} from "@/lib/invoice-storage";
-import type { InvoiceData } from "@/lib/calculations";
-import {
-  Printer, Save, FileDown, FolderOpen, RotateCcw, Eye, FileText,
-  Trash2, Settings2, HardDrive, Hash, Layers,
+  GraduationCap, ShoppingCart, UtensilsCrossed, Stethoscope,
+  Briefcase, HardHat, Truck, Scissors, ArrowRight, FileText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: HomePage,
 });
 
-function Index() {
-  const [data, setData] = useState<InvoiceData>(() => emptyInvoice());
-  const [hydrated, setHydrated] = useState(false);
-  const [drafts, setDrafts] = useState<Draft[]>([]);
-  const [previewOpen, setPreviewOpen] = useState(false);
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  GraduationCap, ShoppingCart, UtensilsCrossed, Stethoscope,
+  Briefcase, HardHat, Truck, Scissors,
+};
 
-  useEffect(() => {
-    const saved = loadCurrent();
-    if (saved) setData(saved);
-    setDrafts(listDrafts());
-    setHydrated(true);
-  }, []);
+const COLOR_MAP: Record<string, { bg: string; icon: string; border: string; ring: string }> = {
+  coaching:     { bg: "bg-violet-50",  icon: "text-violet-600",  border: "border-violet-200", ring: "ring-violet-200" },
+  retail:       { bg: "bg-emerald-50", icon: "text-emerald-600", border: "border-emerald-200", ring: "ring-emerald-200" },
+  restaurant:   { bg: "bg-orange-50",  icon: "text-orange-600",  border: "border-orange-200", ring: "ring-orange-200" },
+  medical:      { bg: "bg-red-50",     icon: "text-red-600",     border: "border-red-200",    ring: "ring-red-200" },
+  freelance:    { bg: "bg-blue-50",    icon: "text-blue-600",    border: "border-blue-200",   ring: "ring-blue-200" },
+  construction: { bg: "bg-yellow-50",  icon: "text-yellow-700",  border: "border-yellow-200", ring: "ring-yellow-200" },
+  transport:    { bg: "bg-cyan-50",    icon: "text-cyan-700",    border: "border-cyan-200",   ring: "ring-cyan-200" },
+  salon:        { bg: "bg-pink-50",    icon: "text-pink-600",    border: "border-pink-200",   ring: "ring-pink-200" },
+};
 
-  useEffect(() => {
-    if (hydrated && data.settings.saveToLocal) saveCurrent(data);
-  }, [data, hydrated]);
-
-  const setSetting = <K extends keyof InvoiceData["settings"]>(k: K, v: InvoiceData["settings"][K]) =>
-    setData((prev) => ({ ...prev, settings: { ...prev.settings, [k]: v } }));
-
-  const onSaveDraft = () => {
-    saveDraft(data);
-    setDrafts(listDrafts());
-    toast.success("Draft saved on this device");
-  };
-  const onLoadDraft = (d: Draft) => { setData(d.data); toast.success(`Loaded: ${d.name}`); };
-  const onDeleteDraft = (id: string) => { deleteDraft(id); setDrafts(listDrafts()); };
-  const onClear = () => { setData(emptyInvoice()); clearCurrent(); toast.success("Current invoice cleared"); };
-  const onReset = () => {
-    if (confirm("Erase ALL saved data on this device (business profile + drafts)?")) {
-      resetAll(); setData(emptyInvoice()); setDrafts([]); toast.success("All data reset");
-    }
-  };
-  const onDownloadJson = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `${data.invoice.number || "invoice"}.json`; a.click();
-    URL.revokeObjectURL(url);
-  };
-  const onPrint = () => window.print();
+function CategoryCard({ config, index }: { config: TemplateConfig; index: number }) {
+  const navigate = useNavigate();
+  const Icon = ICON_MAP[config.icon] ?? FileText;
+  const colors = COLOR_MAP[config.category];
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <Toaster position="top-center" />
+    <button
+      onClick={() => navigate({ to: "/invoice/$category", params: { category: config.category } })}
+      className="group relative text-left rounded-2xl border bg-card p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring animate-in fade-in slide-in-from-bottom-4"
+      style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both", animationDuration: "400ms" }}
+    >
+      {/* icon blob */}
+      <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${colors.bg} ${colors.border} border mb-4 transition-transform duration-300 group-hover:scale-110`}>
+        <Icon className={`h-6 w-6 ${colors.icon}`} />
+      </div>
 
-      {/* Top bar — hidden in print */}
-      <header className="no-print sticky top-0 z-20 border-b bg-background/95 backdrop-blur">
-        <div className="max-w-[1600px] mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground grid place-items-center font-bold">₹</div>
-            <div>
-              <h1 className="text-base font-bold leading-tight">GST Invoice Builder</h1>
-              <p className="text-[11px] text-muted-foreground leading-tight">Free · Offline · Your data stays on this device</p>
-            </div>
+      <h3 className="font-semibold text-base leading-tight mb-1 group-hover:text-primary transition-colors duration-200">
+        {config.displayName}
+      </h3>
+      <p className="text-xs text-muted-foreground leading-relaxed pr-6">
+        {config.description}
+      </p>
+
+      {/* arrow */}
+      <span className="absolute bottom-5 right-5 opacity-0 translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0">
+        <ArrowRight className={`h-4 w-4 ${colors.icon}`} />
+      </span>
+
+      {/* subtle hover ring */}
+      <span className={`absolute inset-0 rounded-2xl ring-0 transition-all duration-300 group-hover:ring-2 ${colors.ring} pointer-events-none`} />
+    </button>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-linear-to-br from-background via-muted/20 to-background">
+      {/* Hero header */}
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground grid place-items-center font-bold text-lg shadow-sm">
+            ₹
           </div>
-          <div className="ml-auto flex flex-wrap gap-2">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm"><FolderOpen className="h-4 w-4 mr-1" />Drafts ({drafts.length})</Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader><SheetTitle>Saved Drafts</SheetTitle></SheetHeader>
-                <div className="mt-4 space-y-2">
-                  {drafts.length === 0 && <p className="text-sm text-muted-foreground">No drafts yet. Click "Save Draft" to keep a copy.</p>}
-                  {drafts.map((d) => (
-                    <div key={d.id} className="flex items-center justify-between rounded border p-2">
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{d.name}</div>
-                        <div className="text-[10px] text-muted-foreground">{new Date(d.savedAt).toLocaleString()}</div>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => onLoadDraft(d)}><FileText className="h-4 w-4" /></Button>
-                        <Button size="sm" variant="ghost" onClick={() => onDeleteDraft(d.id)}><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </SheetContent>
-            </Sheet>
-            <Button variant="outline" size="sm" onClick={onSaveDraft}><Save className="h-4 w-4 mr-1" />Save Draft</Button>
-            <Button variant="outline" size="sm" onClick={onDownloadJson}><FileDown className="h-4 w-4 mr-1" />JSON</Button>
-            <Button variant="outline" size="sm" onClick={onClear}>Clear</Button>
-            <Button variant="ghost" size="sm" onClick={onReset}><RotateCcw className="h-4 w-4 mr-1" />Reset All</Button>
-            <Button size="sm" onClick={onPrint}><Printer className="h-4 w-4 mr-1" />Print / Save PDF</Button>
-
-            {/* Settings */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" title="Settings">
-                  <Settings2 className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="w-[320px] sm:w-[360px] flex flex-col">
-                <SheetHeader className="pb-2">
-                  <SheetTitle className="flex items-center gap-2 text-base">
-                    <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center">
-                      <Settings2 className="h-4 w-4 text-primary" />
-                    </div>
-                    Invoice Settings
-                  </SheetTitle>
-                  <SheetDescription className="text-xs">
-                    Preferences are saved automatically with your invoice.
-                  </SheetDescription>
-                </SheetHeader>
-
-                <Separator className="my-4" />
-
-                <div className="space-y-3 flex-1">
-                  <SettingRow
-                    icon={<Hash className="h-4 w-4" />}
-                    title="Round off grand total"
-                    description="Rounds the final amount to the nearest rupee"
-                    checked={data.settings.roundOff}
-                    onChange={(v) => setSetting("roundOff", v)}
-                    delay={0}
-                  />
-                  <SettingRow
-                    icon={<HardDrive className="h-4 w-4" />}
-                    title="Auto-save to this device"
-                    description="Keeps your progress in browser storage"
-                    checked={data.settings.saveToLocal}
-                    onChange={(v) => setSetting("saveToLocal", v)}
-                    delay={60}
-                  />
-                  <SettingRow
-                    icon={<Layers className="h-4 w-4" />}
-                    title="Show watermark on preview"
-                    description="Adds a faint business name behind the invoice"
-                    checked={data.settings.watermark}
-                    onChange={(v) => setSetting("watermark", v)}
-                    delay={120}
-                  />
-                </div>
-
-                <Separator className="my-4" />
-                <p className="text-[11px] text-muted-foreground text-center pb-2">
-                  All data stays on your device — nothing is sent to any server.
-                </p>
-              </SheetContent>
-            </Sheet>
+          <div>
+            <h1 className="text-sm font-bold leading-tight">DataFirst Bill</h1>
+            <p className="text-[11px] text-muted-foreground leading-tight">Free · Offline · Your data stays on device</p>
           </div>
         </div>
       </header>
 
-      {/* Workspace */}
-      <main className="max-w-[1600px] mx-auto px-4 py-6 grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-        <section className="no-print">
-          <div className="rounded-xl border bg-card p-4 lg:sticky lg:top-20">
-            <h2 className="text-sm font-semibold mb-3">Guided Bill Builder</h2>
-            <InvoiceForm data={data} onChange={setData} />
-            <div className="lg:hidden mt-4">
-              <Button className="w-full" variant="secondary" onClick={() => setPreviewOpen(true)}>
-                <Eye className="h-4 w-4 mr-1" /> Show Live Preview
-              </Button>
-            </div>
+      <main className="max-w-6xl mx-auto px-4 py-12">
+        {/* Hero text */}
+        <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-6 duration-500">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-muted/60 px-3 py-1 text-xs text-muted-foreground mb-4 font-medium">
+            <FileText className="h-3 w-3" />
+            8 industry templates · 100% offline · No login required
           </div>
-        </section>
-
-        <section className="invoice-area">
-          <div className="hidden lg:block">
-            <InvoicePreview data={data} />
-          </div>
-        </section>
-      </main>
-
-      {/* Mobile preview */}
-      {previewOpen && (
-        <div className="lg:hidden no-print fixed inset-0 z-30 bg-background overflow-auto">
-          <div className="sticky top-0 flex justify-end p-3 bg-background border-b">
-            <Button size="sm" variant="outline" onClick={() => setPreviewOpen(false)}>Close</Button>
-            <Button size="sm" className="ml-2" onClick={onPrint}><Printer className="h-4 w-4 mr-1" />Print</Button>
-          </div>
-          <div className="p-3"><InvoicePreview data={data} /></div>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
+            Generate professional bills<br className="hidden sm:block" /> for any industry
+          </h2>
+          <p className="text-muted-foreground max-w-md mx-auto text-sm leading-relaxed">
+            Pick your industry below. Every template is pre-configured with the right fields,
+            tax rules, and document format that your business actually needs.
+          </p>
         </div>
-      )}
 
-      {/* Print-only invoice */}
-      <div className="print-only">
-        <InvoicePreview data={data} />
-      </div>
-    </div>
-  );
-}
+        {/* Category grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {ALL_CATEGORIES.map((config, i) => (
+            <CategoryCard key={config.category} config={config} index={i} />
+          ))}
+        </div>
 
-interface SettingRowProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  delay: number;
-}
-
-function SettingRow({ icon, title, description, checked, onChange, delay }: SettingRowProps) {
-  return (
-    <div
-      className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-all duration-200 hover:shadow-md hover:border-primary/30 animate-in fade-in slide-in-from-right-4"
-      style={{ animationDelay: `${delay}ms`, animationFillMode: "both", animationDuration: "350ms" }}
-    >
-      <div
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 ${
-          checked ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-        }`}
-      >
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium leading-tight">{title}</p>
-        <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{description}</p>
-      </div>
-      <Switch
-        checked={checked}
-        onCheckedChange={onChange}
-        className="shrink-0"
-      />
+        {/* Footer note */}
+        <p className="text-center text-xs text-muted-foreground mt-10 animate-in fade-in duration-700" style={{ animationDelay: "600ms", animationFillMode: "both" }}>
+          All calculations are done in your browser. Nothing is sent to any server.
+        </p>
+      </main>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { InvoiceData } from "./calculations";
+import type { TemplateInvoiceData, TemplateConfig } from "./types";
 
 const KEY_CURRENT = "gst_invoice_current";
 const KEY_DRAFTS = "gst_invoice_drafts";
@@ -75,4 +76,62 @@ export function resetAll() {
   localStorage.removeItem(KEY_CURRENT);
   localStorage.removeItem(KEY_DRAFTS);
   localStorage.removeItem(KEY_BUSINESS);
+}
+
+// ── Template invoice storage (per-category) ─────────────────────────────────
+
+function templateKey(category: string) {
+  return `gst_template_${category}`;
+}
+
+export function emptyTemplateInvoice(config: TemplateConfig): TemplateInvoiceData {
+  const taxEnabled: Record<string, boolean> = {};
+  for (const t of config.taxes) taxEnabled[t.key] = t.enabled;
+
+  const extraFields: Record<string, string> = {};
+  for (const f of config.extraFields) {
+    if (f.key === "invoiceDate" || f.key === "billDate" || f.key === "paymentDate" || f.key === "invoiceDate") {
+      extraFields[f.key] = new Date().toISOString().slice(0, 10);
+    } else {
+      extraFields[f.key] = "";
+    }
+  }
+
+  const blankItem: TemplateInvoiceData["items"][0] = { id: crypto.randomUUID() };
+  for (const col of config.lineItemColumns) {
+    blankItem[col.key] = col.type === "number" ? 0 : "";
+  }
+
+  return {
+    category: config.category,
+    sender: Object.fromEntries(config.senderFields.map((f) => [f.key, ""])),
+    receiver: Object.fromEntries(config.receiverFields.map((f) => [f.key, ""])),
+    items: [blankItem],
+    extraFields,
+    taxEnabled,
+    settings: {
+      roundOff: false,
+      saveToLocal: true,
+      watermark: false,
+      taxMode: "cgst-sgst",
+      documentTitle: config.documentTitle,
+    },
+  };
+}
+
+export function saveTemplateInvoice(category: string, data: TemplateInvoiceData) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(templateKey(category), JSON.stringify(data));
+}
+
+export function loadTemplateInvoice(category: string): TemplateInvoiceData | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(templateKey(category));
+  if (!raw) return null;
+  try { return JSON.parse(raw) as TemplateInvoiceData; } catch { return null; }
+}
+
+export function clearTemplateInvoice(category: string) {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(templateKey(category));
 }

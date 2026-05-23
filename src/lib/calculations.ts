@@ -58,6 +58,25 @@ export interface InvoiceData {
   settings: Settings;
 }
 
+// ── Template line-item computation ──────────────────────────────────────────
+import type { ComputeMode, TemplateItem } from "./types";
+
+export function computeLineAmount(item: TemplateItem, mode: ComputeMode): number {
+  const qty = Number(item.qty) || 1;
+  const rate = Number(item.rate) || 0;
+  const amount = Number(item.amount) || 0;
+  const disc = Number(item.discount) || 0;
+  const discPct = Number(item.discountPct) || 0;
+
+  switch (mode) {
+    case "direct": return Math.max(0, amount);
+    case "qty*rate": return Math.max(0, qty * rate);
+    case "qty*rate-disc": return Math.max(0, qty * rate - disc);
+    case "qty*rate*(1-discPct/100)": return Math.max(0, qty * rate * (1 - discPct / 100));
+    default: return Math.max(0, amount);
+  }
+}
+
 export function rowAmount(item: Item): number {
   const gross = (Number(item.qty) || 0) * (Number(item.rate) || 0);
   const disc = Number(item.discount) || 0;

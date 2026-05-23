@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InvoiceCategoryRouteImport } from './routes/invoice.$category'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -17,26 +18,36 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const InvoiceCategoryRoute = InvoiceCategoryRouteImport.update({
+  id: '/invoice/$category',
+  path: '/invoice/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/invoice/$category': typeof InvoiceCategoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/invoice/$category': typeof InvoiceCategoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/invoice/$category': typeof InvoiceCategoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/invoice/$category'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/invoice/$category'
+  id: '__root__' | '/' | '/invoice/$category'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InvoiceCategoryRoute: typeof InvoiceCategoryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,13 +59,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invoice/$category': {
+      id: '/invoice/$category'
+      path: '/invoice/$category'
+      fullPath: '/invoice/$category'
+      preLoaderRoute: typeof InvoiceCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InvoiceCategoryRoute: InvoiceCategoryRoute,
 }
+
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
