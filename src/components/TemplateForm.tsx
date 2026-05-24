@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Copy,
-  Building2, User, List, FileText, Receipt, Upload, X,
+  Building2, User, List, FileText, Receipt, Upload, X, Printer,
 } from "lucide-react";
 import type { TemplateConfig, TemplateInvoiceData, TemplateItem, FieldDef } from "@/lib/types";
 import { computeLineAmount } from "@/lib/calculations";
@@ -200,13 +200,15 @@ export function TemplateForm({ config, data, onChange }: Props) {
         >
           <ChevronLeft className="h-4 w-4 mr-1" /> Back
         </Button>
-        <Button
-          size="sm"
-          disabled={displayStep === totalSteps - 1}
-          onClick={() => goTo(displayStep + 1)}
-        >
-          Next <ChevronRight className="h-4 w-4 ml-1" />
-        </Button>
+        {displayStep === totalSteps - 1 ? (
+          <Button size="sm" onClick={() => window.print()}>
+            <Printer className="h-4 w-4 mr-1" /> Print Bill
+          </Button>
+        ) : (
+          <Button size="sm" onClick={() => goTo(displayStep + 1)}>
+            Next <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        )}
       </div>
     </div>
   );
