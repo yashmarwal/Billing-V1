@@ -32,7 +32,6 @@ export function TemplatePreview({ config, data }: Props) {
   const allCols = config.lineItemColumns;
 
   return (
-    <div className="overflow-x-auto">
     <div
       className="invoice-sheet bg-white text-black mx-auto shadow-sm border border-neutral-200 print:shadow-none print:border-0"
       style={{
@@ -90,7 +89,7 @@ export function TemplatePreview({ config, data }: Props) {
         </div>
 
         {/* Extra meta fields (invoice number, date, etc.) */}
-        <div className="text-[9px] min-w-[130px]">
+        <div className="text-[9px] min-w-32.5">
           <table className="w-full">
             <tbody>
               {config.extraFields.slice(0, 8).map((f) => {
@@ -242,7 +241,6 @@ export function TemplatePreview({ config, data }: Props) {
           This is a computer-generated document.
         </div>
       )}
-    </div>
     </div>
   );
 }

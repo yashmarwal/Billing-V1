@@ -45,9 +45,8 @@ export function ManufacturerPreview({ config, data }: Props) {
   const blankRows = Math.max(0, 6 - data.items.length);
 
   return (
-    <div className="overflow-x-auto">
-      <div
-        className="invoice-sheet bg-white text-black mx-auto shadow-sm border border-neutral-300 print:shadow-none print:border-0"
+    <div
+      className="invoice-sheet bg-white text-black mx-auto shadow-sm border border-neutral-300 print:shadow-none print:border-0"
         style={{
           width: "210mm",
           minHeight: "297mm",
@@ -369,6 +368,5 @@ export function ManufacturerPreview({ config, data }: Props) {
           ))}
         </div>
       </div>
-    </div>
   );
 }
